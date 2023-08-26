@@ -2,30 +2,20 @@ const express = require("express");
 const path = require("node:path");
 const app = express();
 const PORT = process.env.PORT || 5000;
-const users = require("./users");
 const logger = require("./middleware/logger");
 
 // use logger
 // app.use(logger);
 
-app.use(express.static(path.join(__dirname, "public")));
+// use body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Set statics
-app.get("/api/users", (req, res) => {
-  res.json(users);
-});
+app.use(express.static(path.join(__dirname, "public")));
 
-// get individual user
-app.get("/api/users/:id", (req, res) => {
-  const found = users.some((user) => user.id === parseInt(req.params.id));
-
-  if (found) {
-    res.json(users.filter((user) => user.id.toString() === req.params.id));
-  } else {
-    res.status(400);
-    res.json({ msg: "user not found" });
-  }
-});
+// bring in those routes
+app.use("/api/users", require("./routes/api/users"));
 
 // app.get("/", (req, res) => {
 //   res.sendFile(path.join(__dirname, "public", "index.html"));
